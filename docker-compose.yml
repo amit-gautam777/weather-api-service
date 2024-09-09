@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  weather-api:
+    build: .
+    ports:
+      - "8000:80"
+#    environment:
+#      - API_KEY=your_openweathermap_api_key
+#      - BUCKET_NAME=your_bucket_name
+    volumes:
+      - .:/app
