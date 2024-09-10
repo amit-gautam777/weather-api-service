@@ -13,6 +13,8 @@ async def save_to_s3(filename: str, data: str) -> None:
         except Exception as e:
             print('error', e)
             return
+
+
 async def load_from_s3(filename: str) -> Optional[str]:
     session = get_session()
     async with session.create_client('s3') as s3:
