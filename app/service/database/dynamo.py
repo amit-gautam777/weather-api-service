@@ -1,5 +1,5 @@
 import boto3
-from boto3.dynamodb.conditions import Key
+from boto3.dynamodb.conditions import Key, Attr
 from typing import Dict, Any, List
 from app.service.database.base import BaseDatabase
 from botocore.exceptions import ClientError
@@ -16,6 +16,7 @@ class DynamoDBClient(BaseDatabase):
         )
         self.create_table_if_not_exists('cache')
 
+    # This is used to create cache table when project initialize
     def create_table_if_not_exists(self, table_name: str):
         # Check if table already exists
         existing_tables = self.dynamodb.meta.client.list_tables()['TableNames']
@@ -56,17 +57,20 @@ class DynamoDBClient(BaseDatabase):
         except ClientError as e:
             print(f"Error creating table: {e}")
 
+    # create record
     async def create(self, table_name: str, item: Dict[str, Any]) -> None:
         table = self.dynamodb.Table(table_name)
         try:
             table.put_item(Item=item)
-        except ClientError as e:
-            print(f"Error creating item: {e}")
+        except Exception as e:
+            print(f"Unexpected error: {e}")
 
+    # update record 
     async def update(self, table_name: str, key: Dict[str, Any], updates: Dict[str, Any]) -> None:
         table = self.dynamodb.Table(table_name)
         update_expression = "set " + ", ".join([f"{k}= :{k}" for k in updates.keys()])
         expression_values = {f":{k}": v for k, v in updates.items()}
+
         try:
             table.update_item(
                 Key=key,
@@ -76,6 +80,7 @@ class DynamoDBClient(BaseDatabase):
         except ClientError as e:
             print(f"Error updating item: {e}")
 
+    # fetch record
     async def select(self, table_name: str, key: Dict[str, Any]) -> Dict[str, Any]:
         table = self.dynamodb.Table(table_name)
         try:
@@ -84,22 +89,26 @@ class DynamoDBClient(BaseDatabase):
         except ClientError as e:
             print(f"Error selecting item: {e}")
             return {}
-        
 
-    async def fetch_records_starting_with(self, table_name: str, attribute_name: str, prefix: str) -> List[Dict[str, Any]]:
+    # delete record
+    async def delete_item(self, table_name: str, key: dict):
+        table = self.dynamodb.Table(table_name)
+
         try:
-            table = self.dynamodb.Table(table_name)
-            response = table.scan(
-                FilterExpression=Key(attribute_name).begins_with(prefix)
+            table.delete_item(
+                Key=key
             )
-
-            print("========================================")
-            print(response.get('Item', {}))
-            print("========================================")
-            
-            items = response.get('Item', {})
-            return items
-        
         except ClientError as e:
-            print(f"Error selecting item: {e}")
-            return {}
+            print(f"Error deleting item: {e}")
+        
+    # fetch records that are begins with a secific key
+    async def fetch_records_starting_with(self, table_name: str, attribute_name: str, prefix: str) -> List[Dict[str, Any]]:
+        table = self.dynamodb.Table(table_name)
+        try:
+            response = table.scan(
+                FilterExpression=Attr(attribute_name).begins_with(prefix)
+            )
+            return response.get('Items', [])
+        except Exception as e:
+            print(f"Unexpected error: {e}")
+            return []

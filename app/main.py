@@ -14,7 +14,7 @@ from app.service.database.dynamo import DynamoDBClient
 from app.service.storage.S3Storage import S3Storage
 
 # Dependency
-def get_dynamodb_client() -> DynamoDBClient:
+async def get_dynamodb_client() -> DynamoDBClient:
     return DynamoDBClient()
 
 def get_s3_client() -> S3Storage:
@@ -25,16 +25,7 @@ def get_s3_client() -> S3Storage:
 @app.get("/weather")
 async def get_weather(city: str = Query(..., min_length=1, max_length=100), db: DynamoDBClient = Depends(get_dynamodb_client), fileClient: S3Storage = Depends(get_s3_client)):
     try:
-        cached_data = await retrieve_weather_data(city, db, fileClient)
-        if cached_data:
-            return cached_data
-
-        weather_data = await fetch_weather_data(city)
-        await store_weather_data(city, weather_data, db, fileClient)
-
-        # await log_event(city, weather_data)
-
-        return weather_data
+        return await retrieve_weather_data(city, db, fileClient)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
