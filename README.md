@@ -11,3 +11,8 @@ This project implements a weather API service using FastAPI. The service fetches
 3. **RUN docker compose to start the project**:
    docker-compose build
    docker-compose up
+
+
+## Run Application
+
+Application will be run on http://localhost:8002 and swagger API doc will be on http://localhost:8002/docs
