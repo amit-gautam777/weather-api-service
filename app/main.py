@@ -41,4 +41,5 @@ async def get_weather(city: str = Query(..., min_length=1, max_length=100), db: 
 
 if __name__ == '__main__':
     import uvicorn
-    uvicorn.run(app, host='localhost', port=80)
+    # uvicorn.run(app, host='localhost', port=80)
+    uvicorn.run(app, host='localhost', port=8001)

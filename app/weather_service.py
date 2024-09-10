@@ -27,7 +27,7 @@ async def fetch_weather_data(city: str) -> dict:
 async def store_weather_data(city: str, data: dict, dynamodb, fileClient) -> None:
     now = datetime.utcnow()
 
-    expired_at_obj = now + timedelta(minutes=os.getenv("CACHE_EXPIRATION_MINUTES"))
+    expired_at_obj = now + timedelta(minutes=int(os.getenv("CACHE_EXPIRATION_MINUTES")))
     expired_at = expired_at_obj.strftime('%Y%m%d%H%M%S')
     filename = f"{city}_{expired_at}.json"
 
@@ -49,7 +49,7 @@ async def retrieve_weather_data(city: str, dynamodb, fileClient) -> Optional[dic
     print(len(response))
 
     now = datetime.utcnow()
-    five_minutes_ago = now - timedelta(minutes=os.getenv("CACHE_EXPIRATION_MINUTES"))
+    five_minutes_ago = now - timedelta(minutes=int(os.getenv("CACHE_EXPIRATION_MINUTES")))
     five_minutes_ago_str = five_minutes_ago.strftime('%Y%m%dT%H%M%S')
 
     # if response:
