@@ -14,6 +14,47 @@ class DynamoDBClient(BaseDatabase):
             aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
             aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY")
         )
+        self.create_table_if_not_exists('cache')
+
+    def create_table_if_not_exists(self, table_name: str):
+        # Check if table already exists
+        existing_tables = self.dynamodb.meta.client.list_tables()['TableNames']
+        if table_name in existing_tables:
+            print(f"Table '{table_name}' already exists.")
+            return
+
+        try:
+            # Create table
+            response = self.dynamodb.meta.client.create_table(
+                TableName=table_name,
+                KeySchema=[
+                    {
+                        'AttributeName': 'filename',
+                        'KeyType': 'HASH'  # Partition key
+                    },
+                    {
+                        'AttributeName': 'expired_at',
+                        'KeyType': 'RANGE'  # Sort key (if needed)
+                    }
+                ],
+                AttributeDefinitions=[
+                    {
+                        'AttributeName': 'filename',
+                        'AttributeType': 'S'  # String
+                    },
+                    {
+                        'AttributeName': 'expired_at',
+                        'AttributeType': 'S'  # String (DateTime format as ISO 8601 string)
+                    }
+                ],
+                ProvisionedThroughput={
+                    'ReadCapacityUnits': 5,
+                    'WriteCapacityUnits': 5
+                }
+            )
+            print(f"Table '{table_name}' created successfully.")
+        except ClientError as e:
+            print(f"Error creating table: {e}")
 
     async def create(self, table_name: str, item: Dict[str, Any]) -> None:
         table = self.dynamodb.Table(table_name)

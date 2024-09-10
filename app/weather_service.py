@@ -35,6 +35,7 @@ async def store_weather_data(city: str, data: dict, dynamodb, fileClient) -> Non
         "expired_at": expired_at,
         "filename": filename
     }
+    print('item;;;;;', item)
     response = await dynamodb.create('cache', item)
     print(response)
 
@@ -56,4 +57,3 @@ async def retrieve_weather_data(city: str, dynamodb, fileClient) -> Optional[dic
     #     if response.expire_at > five_minutes_ago_str:
     #         fileClient.
     return response
-            
