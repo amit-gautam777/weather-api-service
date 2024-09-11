@@ -6,12 +6,16 @@ This project implements a weather API service using FastAPI. The service fetches
 
 ## Setup
 
-1. **Change file env.example to .env**
+1. **Change file .env.example to .env**
+  
+  ```
+  mv .env.example .env
+  ```
 2. **Install docker compose on your system**:
 3. **RUN docker compose to start the project**:
 
   ```
-  docker compose --env-file ./app/.env up -d --build
+  docker compose --env-file ./.env up -d --build
   ```
 
 4. **Run Curl Command**
