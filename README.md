@@ -9,10 +9,13 @@ This project implements a weather API service using FastAPI. The service fetches
 1. **Change file env.example to .env**
 2. **Install docker compose on your system**:
 3. **RUN docker compose to start the project**:
-   docker-compose build
-   docker-compose up
 
+  ```
+  docker compose --env-file ./app/.env up -d --build
+  ```
 
-## Run Application
+4. **Run Curl Command**
 
-Application will be run on http://localhost:8002 and swagger API doc will be on http://localhost:8002/docs
+```
+curl -X GET "http://localhost:8002/weather?city=Chandigarh"
+```
